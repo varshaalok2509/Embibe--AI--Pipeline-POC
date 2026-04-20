@@ -33,12 +33,12 @@ The three objectives:
 
 All experiments: CBSE board, 1 chapter × 3 topics each.
 
-| #     | Approach       | Gr  | Subject          | Chapter — *Topics*                                                                                                     | Lang |
-| ----- | -------------- | --- | ---------------- | ---------------------------------------------------------------------------------------------------------------------- | ---- |
-| **1** | Curation       | 5   | Computer Science | **Parts of a Computer** — *Input devices; Output devices; CPU & memory*                                                | En   |
-| **2** | Curation       | 6   | Hindi            | **Vah Chidiya Jo** (Vasant) — *Theme & imagery; Vocabulary & phrases; Poetic devices*                                  | Hi   |
-| **3** | Gen + Curation | 6   | SSt — History    | **The Earliest Cities** — *Harappan civilisation; Cities as centres of power; Decline of the Indus Valley*             | En   |
-| **4** | Gen + Curation | 8   | Civics           | **Understanding Our Criminal Justice System** — *Role of the police; Role of the public prosecutor; Role of the judge* | En   |
+| #     | Approach       | Gr  | Subject         | Chapter — *Topics*                                                                                  | Lang |
+| ----- | -------------- | --- | --------------- | --------------------------------------------------------------------------------------------------- | ---- |
+| **1** | Curation       | 5   | English         | **The Rainbow** (Santoor) — *Theme & meaning; New vocabulary; Poetic devices (rhyme, imagery)*                                    | En   |
+| **2** | Curation       | 6   | Hindi           | **Malahar** — *Theme & imagery; Vocabulary & phrases; Poetic devices*                                                              | Hi   |
+| **3** | Gen + Curation | 6   | SST (History)   | **Timeline and Sources of History** — *Dating conventions (BCE/CE, timelines); Sources of history (literary, archaeological, oral); How historians construct the past* | En   |
+| **4** | Gen + Curation | 8   | SST (Geography) | **Natural Resources and Their Use** — *Types of resources (renewable vs non-renewable, biotic vs abiotic); Distribution and human use; Conservation and sustainable use* | En   |
 
 
 ---
