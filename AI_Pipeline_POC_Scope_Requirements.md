@@ -9,8 +9,8 @@ This POC runs four controlled experiments to test two AI-native production appro
 The goal is to answer three questions:
 
 1. **Is the output quality good enough to publish?**
-2. **Does it actually fill the content gaps we have today?**
-3. **Is it faster and cheaper than how we produce content today?**
+2. **Does it actually fill the content gaps Embibe has today?**
+3. **Is it faster and more cost-effective than how Embibe produces content today?**
 
 ---
 
@@ -73,12 +73,12 @@ Every experiment starts with the same input, regardless of approach.
 | Source record    | Original URL, creator, license type, attribution text                                       |
 
 **YouTube source channels (starting allowlist — curation is restricted to vetted educational channels):**
-- NCERT Official
-- Khan Academy India
-- Magnet Brains
-- LearnoHub
-- Vedantu Young Wonders
-- iKen Edu
+- Magnet brains
+- LearnoHub - Class 6,7,8 
+- Next Toppers Juniors  
+- NCERT Official 
+- BodhaGuru Learning
+
 
 ### Generation approach (Experiments 3 and 4)
 
@@ -141,7 +141,7 @@ Lean POC team. 4–5 people total.
 | ---------------------------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **POC lead (PM)**                  | 1      | End-to-end owner, weekly reviews, decision memo                                                                                                                       |
 | **Engineer**                       | 2      | One runs the curation pipeline + NCERT PDF ingestion; one runs the generation stack (scripting, video, voice). Skills: LLM orchestration, video/voice tooling, Python |
-| **Human-in-loop — Content Quality** | 1 or 2 | Validates LLM scorecard ratings, does final pass/fail review, flags factual errors                                                                                    |
+| **Human-in-loop -Content Quality** | 1 or 2 | Validates LLM scorecard ratings, does final pass/fail review, flags factual errors                                                                                    |
 
 **Tools & platforms**
 - **Curation stack:** existing Superr backend (YouTube scraper, curriculum graph, tagging) + lightweight NCERT PDF ingestion module
