@@ -18,7 +18,7 @@
 7. [Resources Needed](#7-resources-needed)
 8. [Execution Plan](#8-execution-plan)
 
-<div style="page-break-after: always;"></div>
+---
 
 ## 1. Overview
 
@@ -32,7 +32,7 @@ The goal is to answer three questions:
 2. **Does it actually fill the content gaps Embibe has today?**
 3. **Is it faster and more cost-effective than how Embibe produces content today?**
 
-<div style="page-break-after: always;"></div>
+---
 
 ## 2. POC Objectives
 
@@ -47,7 +47,7 @@ The three objectives:
 2. **Use Generation to expedite studio-quality production** — turn weeks of scripting, shooting, and post-production into days, so we can publish original Embibe-branded content for core CBSE middle-school subjects at a fraction of current time and cost, with full brand and IP control.
 3. **Validate every output against a single quality scorecard** — every topic, every approach, scored the same way, so we have measurable evidence (not opinion) on where each approach works and where it doesn't.
 
-<div style="page-break-after: always;"></div>
+---
 
 ## 3. Experiments at a Glance
 
@@ -62,7 +62,7 @@ All experiments: CBSE board, 1 chapter × 3 topics each.
 
 For Experiments 3 and 4, we run the **same topics through both Curation and Generation** — so we can compare the two approaches side-by-side on identical input and see which one produces better output for the same chapter.
 
-<div style="page-break-after: always;"></div>
+---
 
 ## 4. Input
 
@@ -78,7 +78,7 @@ Every experiment starts with the same input, regardless of approach.
 | Learning objectives | 4–6 per topic, sourced from NCERT syllabus                           |
 | Reference material  | NCERT textbook PDF for the chapter, NCFSE document, Youtube Channels |
 
-<div style="page-break-after: always;"></div>
+---
 
 ## 5. Output
 
@@ -112,7 +112,7 @@ Every experiment starts with the same input, regardless of approach.
 | Metadata                 | Learning objectives covered, prerequisites, difficulty, Bloom's level   |
 | Provenance record        | Models used, voice-clone ID, generation timestamp                       |
 
-<div style="page-break-after: always;"></div>
+---
 
 ## 6. How We Evaluate Output
 
@@ -157,7 +157,7 @@ Each criterion is scored 0–5 and combined via the weights below.
 - Below 3.8 / 5.0 (76%) → iterate and re-run, or drop the approach for that gap
 - Any factual error → hard stop, do not publish
 
-<div style="page-break-after: always;"></div>
+---
 
 ## 7. Resources Needed
 
@@ -176,7 +176,7 @@ Lean POC team. 4–5 people total.
 - **Evaluation:** LLM-as-judge pipeline running the scorecard; shared scoring sheet for human-in-loop validation
 - **Storage:** existing Embibe content DB + object storage (GCS / S3 for video, PDF, and transcript artifacts)
 
-<div style="page-break-after: always;"></div>
+---
 
 ## 8. Execution Plan
 
