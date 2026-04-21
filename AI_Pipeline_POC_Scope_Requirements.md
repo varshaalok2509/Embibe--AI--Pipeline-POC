@@ -21,6 +21,7 @@
    - A.1 [Curation pipeline](#a1-curation-pipeline)
    - A.2 [Generation pipeline](#a2-generation-pipeline)
    - A.3 [Shared / orchestration layer](#a3-shared--orchestration-layer)
+   - A.4 [Known risks to watch](#a4-known-risks-to-watch)
 
 **Licence tags used in Appendix A:** `[Open-source]` · `[Freemium]` · `[Paid]` · `[In-house]`
 
@@ -247,14 +248,6 @@ This appendix maps each stage of the pipeline to the tools and models we propose
 | Assessment (10 MCQs + 5 short-answer) | LO-aligned questions with model answers | Gemini 2.5 Pro `[Freemium]` / Claude Sonnet 4.6 `[Paid]` with Bloom's-level prompting | — |
 | Metadata + source record | LO coverage, Bloom's, difficulty, licence, attribution | LLM tagging `[Freemium/Paid]` + deterministic licence lookup (Creative Commons API `[Open-source]`, YouTube API `[Freemium]`) | — |
 
-**Why these work & what could break**
-
-- **We're not starting from zero.** NCERT PDFs and a handful of vetted YouTube channels already cover most middle-school topics — the job is finding the right clip or page, not making new content. *What could break:* a channel quietly changes its teaching style, or a video gets taken down after we've linked to it. We'll need a weekly link-check.
-- **PDF parsing is the weakest link in curation.** NCERT pages have two-column layouts, diagrams, and sidebars that simple text extractors mangle. Using Gemini's vision for the tricky pages and PyMuPDF for clean text pages gives us the best of both. *What could break:* scanned or older PDFs that aren't true digital text — those will need OCR and manual QA.
-- **Transcripts for Hindi are still hit-or-miss.** Whisper is excellent for English but weaker on Indian accents and mixed Hindi-English speech. Sarvam and AI4Bharat are purpose-built for Indian languages and handle this much better. *What could break:* noisy or low-quality audio from older YouTube uploads — we'll re-run transcription on the portions the model flagged as low-confidence.
-- **Curriculum alignment is where Embibe has an edge.** We already have a chapter-topic graph. The LLM doesn't have to guess which topic a video maps to — it just has to confirm the match. *What could break:* stale graph entries for chapters that got revised in the new NCERT edition; worth a pre-flight check.
-- **Licence attribution is deterministic, not AI.** We pull licence info straight from the source API, so there's no hallucination risk. *What could break:* creators change licence terms after we've cached them. We'll re-check licence on publish day.
-
 ### A.2 Generation pipeline
 
 | Stage | Purpose / outcome | Proposed tools & models | Alternates |
@@ -272,15 +265,6 @@ This appendix maps each stage of the pipeline to the tools and models we propose
 | Key moments (jump-to) | 3–6 logical segments with titles, start/end timestamps | **Gemini 2.5 Pro** `[Freemium]` over timestamped transcript (pattern already used in Superr video enrichment) | — |
 | Provenance / watermark | Tamper-evident record of what was AI-generated and how | **C2PA** `[Open-source]` signed manifest; **Google SynthID** `[Paid]` watermarking for images and audio | — |
 
-**Why these work & what could break**
-
-- **One script, many outputs.** A single good script drives the voiceover, the slides, the captions, and the key-moment tags — so quality at the scripting step compounds through the rest of the pipeline. *What could break:* the LLM writes something technically correct but flat. We'll keep a "voice and tone" sample for the scripting prompt so output feels like an Embibe lesson, not generic.
-- **We mix avatar tools with b-roll tools on purpose.** HeyGen and Synthesia are reliable for talking-head explainers, but the visuals feel same-y. Veo, Sora, and Runway give us richer scenes for moments that need them (a historical reenactment, a landscape shot). Using both means we don't get stuck with one look. *What could break:* cost — generating cinematic video is expensive, so we'll cap seconds-of-b-roll per lesson.
-- **Hindi voice cloning is the big unknown.** ElevenLabs is strong in English, weaker in Hindi. Sarvam is purpose-built for Indian languages and is what we'll likely end up using for vernacular. *What could break:* a cloned voice that sounds fine on short phrases but breaks on long sentences or technical words — trial topics in Phase 2 will catch this early.
-- **Programmatic composition > drag-and-drop editors.** Remotion lets us re-render a whole lesson after a single script change, automatically. A manual editor doesn't scale past 10–20 videos. *What could break:* engineering time upfront — the first Remotion template will take real effort. After that, every new lesson is cheap.
-- **Provenance isn't optional.** Parents, boards, and regulators are going to ask "is this AI-generated?" for every piece of content. C2PA and SynthID let us answer that with a signed, verifiable record. *What could break:* not all downstream players read C2PA yet — so for now, we also keep a plain-text "AI-generated" label on the player.
-- **PhET and NCERT simulations are free and already trusted.** For Science topics we can embed them rather than rebuild them, which saves weeks. *What could break:* the embeds aren't brand-consistent. We'll frame them inside an Embibe wrapper so the experience still feels like ours.
-
 ### A.3 Shared / orchestration layer
 
 | Stage                     | Purpose / outcome                                                        | Proposed tools & models                                                                                                 | Alternates                                                 |
@@ -293,10 +277,14 @@ This appendix maps each stage of the pipeline to the tools and models we propose
 | Storage                   | Video, PDF, transcript, GCS artifacts                                    | **GCS / S3** `[In-house]` (existing Embibe infra)                                                                       | —                                                          |
 | Observability             | Cost, latency, error rates, hallucination rate per stage                 | **Langfuse** `[Open-source]` for LLM spans; **Grafana** `[Open-source]` for infra dashboards                            | Helicone `[Freemium]`                                      |
 
-**Why these work & what could break**
+### A.4 Known risks to watch
 
-- **Orchestration is the backbone, not the feature.** A pipeline with twelve stages needs to handle one stage failing without restarting everything. LangGraph and Temporal do that out of the box. *What could break:* team learning curve — we'll start with LangGraph for its lighter setup.
-- **The judge LLM has to be watched too.** An LLM grading another LLM sounds circular, but it's fine if we check the judge against a human reviewer on a regular sample. Phase 2 of the execution plan is exactly that check. *What could break:* the judge being too lenient on the model that wrote the output (same-family bias). We'll cross-check with a second judge from a different family (Gemini grading, Claude cross-checking).
-- **Embeddings determine how searchable the content is.** Gemini's embeddings are strong on Indic text, which matters for Hindi and regional content retrieval. *What could break:* model deprecation — if Google retires the current embedding model, every vector in the store needs to be regenerated. We'll version our embeddings from day one.
-- **We re-use Embibe infra where we can.** pgvector, GCS, the Superr curriculum graph — all already in production. This keeps the POC's infra footprint small and the path to scale short. *What could break:* the POC stressing shared infra in ways production workloads don't. Worth a capacity check before Phase 3.
-- **Observability isn't a nice-to-have here.** We're making cost and latency claims to leadership, so we need hard numbers per stage — not "feels faster". Langfuse gives us that for LLM calls; Grafana for the rest. *What could break:* nothing yet — but if costs balloon mid-POC, we need the dashboards live enough to catch it in week one.
+- **PDF parsing:** scanned or older NCERT PDFs will need OCR and manual QA.
+- **Hindi/Indic transcription and voice cloning:** weaker on noisy audio, accents, and long technical sentences; Phase 2 trials will test this.
+- **Source drift:** YouTube videos can be taken down or re-edited; licence terms can change after caching — weekly link and licence re-checks.
+- **Curriculum graph:** stale entries for chapters revised in the new NCERT edition; pre-flight check needed.
+- **LLM-as-judge bias:** same-model-family bias between writer and judge; cross-check with a second judge from a different family.
+- **Cost:** cinematic video generation and voice cloning are the highest-cost stages — cap seconds of b-roll per lesson, monitor via Langfuse from week one.
+- **Provenance playback:** not all downstream players read C2PA yet — keep a plain-text "AI-generated" label alongside the signed manifest.
+- **Embedding model deprecation:** version embeddings from day one so re-generation is tractable.
+- **Shared infra load:** POC workloads may stress pgvector/GCS differently than production — capacity check before Phase 3.
