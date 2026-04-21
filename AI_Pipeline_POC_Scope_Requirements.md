@@ -11,16 +11,18 @@
 5. [Output](#5-output)
    - 5.1 [Curation approach](#51-curation-approach-experiments-1-2-and-the-curation-pass-of-3--4)
    - 5.2 [Generation approach](#52-generation-approach-experiments-3-and-4)
-6. [Tools & Models by Pipeline Stage](#6-tools--models-by-pipeline-stage)
-   - 6.1 [Curation pipeline](#61-curation-pipeline)
-   - 6.2 [Generation pipeline](#62-generation-pipeline)
-   - 6.3 [Shared / orchestration layer](#63-shared--orchestration-layer)
-7. [How We Evaluate Output](#7-how-we-evaluate-output)
-   - 7.1 [Scoring steps](#71-scoring-steps)
-   - 7.2 [Scorecard](#72-scorecard)
-   - 7.3 [Publish-ready threshold & decision rules](#73-publish-ready-threshold--decision-rules)
-8. [Resources Needed](#8-resources-needed)
-9. [Execution Plan](#9-execution-plan)
+6. [How We Evaluate Output](#6-how-we-evaluate-output)
+   - 6.1 [Scoring steps](#61-scoring-steps)
+   - 6.2 [Scorecard](#62-scorecard)
+   - 6.3 [Publish-ready threshold & decision rules](#63-publish-ready-threshold--decision-rules)
+7. [Resources Needed](#7-resources-needed)
+8. [Execution Plan](#8-execution-plan)
+9. [Appendix A — Tools & Models by Pipeline Stage](#9-appendix-a--tools--models-by-pipeline-stage)
+   - A.1 [Curation pipeline](#a1-curation-pipeline)
+   - A.2 [Generation pipeline](#a2-generation-pipeline)
+   - A.3 [Shared / orchestration layer](#a3-shared--orchestration-layer)
+
+**Licence tags used in Appendix A:** `[Open-source]` · `[Freemium]` · `[Paid]` · `[In-house]`
 
 ---
 
@@ -118,60 +120,9 @@ Every experiment starts with the same input, regardless of approach.
 
 ---
 
-## 6. Tools & Models by Pipeline Stage
+## 6. How We Evaluate Output
 
-This section maps each stage of the pipeline to the purpose it serves and the specific tools and models we propose to use. Choices will be validated in Phase 1 of the execution plan; alternates are listed where a head-to-head bake-off is worthwhile.
-
-### 6.1 Curation pipeline
-
-| Stage | Purpose / outcome | Proposed tools & models | Alternates |
-|---|---|---|---|
-| Source discovery (YouTube) | Find candidate videos on allowlisted channels for a chapter + topic | YouTube Data API v3; `yt-dlp` for download | — |
-| NCERT PDF ingestion | Extract text, tables, figures, page ranges from textbook PDFs | PyMuPDF / `pdfplumber` for base extraction; **Gemini 2.5 Pro** (vision) for layout-aware parsing of diagrams and page spreads | LlamaParse, Unstructured.io, Mistral OCR |
-| Transcript (if no captions) | Timestamped transcript from video audio | **Whisper v3 Turbo** (English); **AI4Bharat IndicConformer** or **Sarvam ASR** (Hindi/Indic) | Gemini 2.5 Flash audio, AssemblyAI |
-| Curriculum alignment | Match source content to the target chapter-topic-LO node in Embibe's curriculum graph | Existing Superr curriculum graph + embedding retrieval | — |
-| Topic summary (~300 words) | Write a short, grade-appropriate explainer in the target language | **Gemini 2.5 Pro** (long context, strong Indic); **Claude Sonnet 4.6** for English | GPT-5 |
-| Key concepts + definitions | Extract 5–7 tagged terms from source material with grade-appropriate definitions | Gemini 2.5 Pro / Claude Sonnet 4.6 with structured output | — |
-| Flowcharts / infographics | Turn explanations into visual aids | **Mermaid** / **Graphviz** (LLM-generated source); **Napkin AI** or **Excalidraw AI** for richer visuals | Whimsical AI |
-| Assessment (10 MCQs + 5 short-answer) | LO-aligned questions with model answers | Gemini 2.5 Pro / Claude Sonnet 4.6 with Bloom's-level prompting | — |
-| Metadata + source record | LO coverage, Bloom's, difficulty, licence, attribution | LLM tagging + deterministic licence lookup (Creative Commons API, YouTube API) | — |
-
-### 6.2 Generation pipeline
-
-| Stage | Purpose / outcome | Proposed tools & models | Alternates |
-|---|---|---|---|
-| Scripting | Write an 8–12 min LO-aligned lesson: explanation, examples, check-for-understanding, recap | **Gemini 2.5 Pro** (long context, Indic-strong); **Claude Opus 4.7** for pedagogical tone; **GPT-5** | — |
-| Slide / deck generation | Lesson slides aligned to the script | **Gamma** (text-to-deck) or LLM → **Marp** / **Reveal.js** (programmatic, versionable) | Beautiful.ai, Tome |
-| Diagrams | Concept diagrams, labelled figures, timelines | **Excalidraw AI**, **Napkin AI**, **Mermaid** | Whimsical AI |
-| Image generation | Illustrations, thumbnails, character art | **Imagen 4** (Google), **Flux 1.1 Pro**, **Midjourney v7** | DALL-E 3, Stable Diffusion XL |
-| 3D / simulation assets | Interactive or 3D visuals (where the topic warrants, e.g. Science) | **Blender** (scriptable), **Spline**, **PhET** simulations (embed), **Three.js** | Unity |
-| Voice cloning — English | Embibe-branded narrator voice | **ElevenLabs v3** | Google Chirp 3 HD, OpenAI TTS |
-| Voice cloning — Hindi / Indic | Natural Hindi / regional narration | **Sarvam AI TTS** (Indic-native), **ElevenLabs v3** | AI4Bharat TTS, Google Chirp 3 HD |
-| Text-to-video / avatar | Assemble narrated video with visuals | **HeyGen** or **Synthesia** (avatar-led, best for explainers); **Google Veo 3** / **Runway Gen-4** / **OpenAI Sora 2** (cinematic b-roll) | Pika, D-ID |
-| Video composition | Stitch slides, voice, diagrams, captions into the final 1080p video | **Remotion** (React-based, programmatic, repeatable) or **FFmpeg** | CapCut API, Descript |
-| Captions | Burned-in or sidecar captions | Whisper v3 Turbo for forced alignment + manual QA | AssemblyAI |
-| Key moments (jump-to) | 3–6 logical segments with titles, start/end timestamps | **Gemini 2.5 Pro** over timestamped transcript (pattern already used in Superr video enrichment) | — |
-| Provenance / watermark | Tamper-evident record of what was AI-generated and how | **C2PA** signed manifest; **Google SynthID** watermarking for images and audio | — |
-
-### 6.3 Shared / orchestration layer
-
-| Stage | Purpose / outcome | Proposed tools & models | Alternates |
-|---|---|---|---|
-| Pipeline orchestration | Chain stages, retries, branching, human-in-loop gates | **LangGraph** or **Temporal** (durable, observable, production-ready) | n8n, Prefect |
-| Prompt / eval tooling | Track prompt versions, run A/B evals, regression tests | **PromptFoo** + **Langfuse** (tracing) | Helicone, Arize Phoenix |
-| LLM-as-judge (evaluation) | Score every output against the scorecard, flag issues for human reviewer | **Gemini 2.5 Pro** (cheap, long context, multimodal — watches the video) + **Ragas** / **DeepEval** as the eval harness | **Claude Sonnet 4.6** as a secondary judge for cross-check |
-| Embeddings | Tag outputs for Embibe search / Superr Chat retrieval | **gemini-embedding-001** (multilingual, strong Indic); **BGE-M3** (self-hosted option) | OpenAI text-embedding-3-large |
-| Vector store | Fast semantic retrieval for the curated / generated corpus | **pgvector** (already in Embibe stack) | Qdrant, Pinecone |
-| Storage | Video, PDF, transcript, GCS artifacts | **GCS / S3** (existing Embibe infra) | — |
-| Observability | Cost, latency, error rates, hallucination rate per stage | **Langfuse** for LLM spans; **Grafana** for infra dashboards | Helicone |
-
-> **Note:** All model choices reflect best-available tooling as of Jan 2026. Phase 1 includes a bake-off step where the team runs trial outputs through two candidate models per stage (where alternates are listed) and the Content Quality reviewer + PM pick the winner before freezing the stack.
-
----
-
-## 7. How We Evaluate Output
-
-### 7.1 Scoring steps
+### 6.1 Scoring steps
 
 **Step 1 — Automated scoring (LLM-as-judge)**
 An LLM scores every topic against the scorecard below and flags factual errors, LO drift, and anything scoring low for human review.
@@ -179,7 +130,7 @@ An LLM scores every topic against the scorecard below and flags factual errors, 
 **Step 2 — Human review (Content Quality reviewer)**
 The Content Quality reviewer (human-in-loop) spot-checks every topic, validates the LLM scores, and makes the final pass/fail call.
 
-### 7.2 Scorecard
+### 6.2 Scorecard
 
 Each criterion is scored 0–5 and combined via the weights below.
 
@@ -196,7 +147,7 @@ Each criterion is scored 0–5 and combined via the weights below.
 
 *How each is checked:* LLM-as-judge scores every criterion against the NCERT reference (claims, LO coverage, structure, readability, pacing, audio/caption/link checks, bias classifier). The Content Quality reviewer validates LLM scores, spot-checks facts and clips, and makes the final call. Language fidelity uses a native-speaker reviewer; skipped for English-only (weight redistributed).
 
-### 7.3 Publish-ready threshold & decision rules
+### 6.3 Publish-ready threshold & decision rules
 
 **Publish-ready threshold:** weighted score ≥ **3.8 / 5.0 (76%)**, no single criterion below **3.0 / 5.0 (60%)**, zero factual errors.
 
@@ -214,7 +165,7 @@ Each criterion is scored 0–5 and combined via the weights below.
 
 ---
 
-## 8. Resources Needed
+## 7. Resources Needed
 
 Lean POC team. 4–5 people total.
 
@@ -224,7 +175,8 @@ Lean POC team. 4–5 people total.
 | **Engineer**                        | 2      | One runs the curation pipeline + NCERT PDF ingestion; one runs the generation stack (scripting, video, voice). Skills: LLM orchestration, video/voice tooling, Python |
 | **Human-in-loop — Content Quality** | 1 or 2 | Validates LLM scorecard ratings, does final pass/fail review, flags factual errors                                                                                    |
 
-**Tools & platforms**
+**Tools & platforms** — see [Appendix A](#9-appendix-a--tools--models-by-pipeline-stage) for the full stage-by-stage breakdown.
+
 - **Curation stack:** existing Superr backend (YouTube scraper, curriculum graph, tagging) + lightweight NCERT PDF ingestion module
 - **Generation stack:** LLM for scripting, text-to-video, voice cloning (English + Hindi), image/diagram generation
 - **Transcription:** Whisper for English; IndicWhisper or equivalent for Hindi; regional language models (Tamil, Bengali, Telugu, Marathi, etc.) to be added as scope expands
@@ -233,7 +185,7 @@ Lean POC team. 4–5 people total.
 
 ---
 
-## 9. Execution Plan
+## 8. Execution Plan
 
 ### Phase 1 — Setup
 *Get the inputs, tools, and scoring prompt ready so the team can actually start running experiments.*
@@ -274,3 +226,77 @@ Lean POC team. 4–5 people total.
 18. Per-experiment pass/fail against the 3.8 / 5.0 (76%) threshold
 19. Recommendation on which approach scales into which gap type, with a phased roadmap
 20. Leadership go/no-go
+
+---
+
+## 9. Appendix A — Tools & Models by Pipeline Stage
+
+This appendix maps each stage of the pipeline to the tools and models we propose to use. Licence tags are shown in brackets next to each tool. Choices get finalised in Phase 1 of the execution plan; alternates are listed where a head-to-head bake-off is worth running.
+
+### A.1 Curation pipeline
+
+| Stage | Purpose / outcome | Proposed tools & models | Alternates |
+|---|---|---|---|
+| Source discovery (YouTube) | Find candidate videos on allowlisted channels for a chapter + topic | YouTube Data API v3 `[Freemium]`; `yt-dlp` `[Open-source]` for download | — |
+| NCERT PDF ingestion | Extract text, tables, figures, page ranges from textbook PDFs | PyMuPDF `[Open-source]` / `pdfplumber` `[Open-source]` for base extraction; **Gemini 2.5 Pro** `[Freemium]` (vision) for layout-aware parsing of diagrams and page spreads | LlamaParse `[Freemium]`, Unstructured.io `[Freemium]`, Mistral OCR `[Paid]` |
+| Transcript (if no captions) | Timestamped transcript from video audio | **Whisper v3 Turbo** `[Open-source]` (English); **AI4Bharat IndicConformer** `[Open-source]` or **Sarvam ASR** `[Paid]` (Hindi/Indic) | Gemini 2.5 Flash audio `[Freemium]`, AssemblyAI `[Paid]` |
+| Curriculum alignment | Match source content to the target chapter-topic-LO node in Embibe's curriculum graph | Superr curriculum graph `[In-house]` + embedding retrieval `[In-house]` | — |
+| Topic summary (~300 words) | Write a short, grade-appropriate explainer in the target language | **Gemini 2.5 Pro** `[Freemium]` (long context, strong Indic); **Claude Sonnet 4.6** `[Paid]` for English | GPT-5 `[Paid]` |
+| Key concepts + definitions | Extract 5–7 tagged terms with grade-appropriate definitions | Gemini 2.5 Pro `[Freemium]` / Claude Sonnet 4.6 `[Paid]` with structured output | — |
+| Flowcharts / infographics | Turn explanations into visual aids | **Mermaid** `[Open-source]` / **Graphviz** `[Open-source]` (LLM-generated source); **Napkin AI** `[Freemium]` or **Excalidraw AI** `[Freemium]` for richer visuals | Whimsical AI `[Freemium]` |
+| Assessment (10 MCQs + 5 short-answer) | LO-aligned questions with model answers | Gemini 2.5 Pro `[Freemium]` / Claude Sonnet 4.6 `[Paid]` with Bloom's-level prompting | — |
+| Metadata + source record | LO coverage, Bloom's, difficulty, licence, attribution | LLM tagging `[Freemium/Paid]` + deterministic licence lookup (Creative Commons API `[Open-source]`, YouTube API `[Freemium]`) | — |
+
+**Why these work & what could break**
+
+- **We're not starting from zero.** NCERT PDFs and a handful of vetted YouTube channels already cover most middle-school topics — the job is finding the right clip or page, not making new content. *What could break:* a channel quietly changes its teaching style, or a video gets taken down after we've linked to it. We'll need a weekly link-check.
+- **PDF parsing is the weakest link in curation.** NCERT pages have two-column layouts, diagrams, and sidebars that simple text extractors mangle. Using Gemini's vision for the tricky pages and PyMuPDF for clean text pages gives us the best of both. *What could break:* scanned or older PDFs that aren't true digital text — those will need OCR and manual QA.
+- **Transcripts for Hindi are still hit-or-miss.** Whisper is excellent for English but weaker on Indian accents and mixed Hindi-English speech. Sarvam and AI4Bharat are purpose-built for Indian languages and handle this much better. *What could break:* noisy or low-quality audio from older YouTube uploads — we'll re-run transcription on the portions the model flagged as low-confidence.
+- **Curriculum alignment is where Embibe has an edge.** We already have a chapter-topic graph. The LLM doesn't have to guess which topic a video maps to — it just has to confirm the match. *What could break:* stale graph entries for chapters that got revised in the new NCERT edition; worth a pre-flight check.
+- **Licence attribution is deterministic, not AI.** We pull licence info straight from the source API, so there's no hallucination risk. *What could break:* creators change licence terms after we've cached them. We'll re-check licence on publish day.
+
+### A.2 Generation pipeline
+
+| Stage | Purpose / outcome | Proposed tools & models | Alternates |
+|---|---|---|---|
+| Scripting | Write an 8–12 min LO-aligned lesson: explanation, examples, check-for-understanding, recap | **Gemini 2.5 Pro** `[Freemium]` (long context, Indic-strong); **Claude Opus 4.7** `[Paid]` for pedagogical tone; **GPT-5** `[Paid]` | — |
+| Slide / deck generation | Lesson slides aligned to the script | **Gamma** `[Freemium]` (text-to-deck) or LLM → **Marp** `[Open-source]` / **Reveal.js** `[Open-source]` (programmatic, versionable) | Beautiful.ai `[Paid]`, Tome `[Freemium]` |
+| Diagrams | Concept diagrams, labelled figures, timelines | **Excalidraw AI** `[Freemium]`, **Napkin AI** `[Freemium]`, **Mermaid** `[Open-source]` | Whimsical AI `[Freemium]` |
+| Image generation | Illustrations, thumbnails, character art | **Imagen 4** `[Paid]`, **Flux 1.1 Pro** `[Paid]`, **Midjourney v7** `[Paid]` | DALL-E 3 `[Paid]`, Stable Diffusion XL `[Open-source]` |
+| 3D / simulation assets | Interactive or 3D visuals (where the topic warrants, e.g. Science) | **Blender** `[Open-source]` (scriptable), **Spline** `[Freemium]`, **PhET** `[Open-source]` simulations (embed), **Three.js** `[Open-source]` | Unity `[Freemium]` |
+| Voice cloning — English | Embibe-branded narrator voice | **ElevenLabs v3** `[Paid]` | Google Chirp 3 HD `[Paid]`, OpenAI TTS `[Paid]` |
+| Voice cloning — Hindi / Indic | Natural Hindi / regional narration | **Sarvam AI TTS** `[Paid]` (Indic-native), **ElevenLabs v3** `[Paid]` | AI4Bharat TTS `[Open-source]`, Google Chirp 3 HD `[Paid]` |
+| Text-to-video / avatar | Assemble narrated video with visuals | **HeyGen** `[Paid]` or **Synthesia** `[Paid]` (avatar-led, best for explainers); **Google Veo 3** `[Paid]` / **Runway Gen-4** `[Paid]` / **OpenAI Sora 2** `[Paid]` (cinematic b-roll) | Pika `[Freemium]`, D-ID `[Paid]` |
+| Video composition | Stitch slides, voice, diagrams, captions into the final 1080p video | **Remotion** `[Open-source]` (React-based, programmatic, repeatable) or **FFmpeg** `[Open-source]` | CapCut API `[Freemium]`, Descript `[Paid]` |
+| Captions | Burned-in or sidecar captions | Whisper v3 Turbo `[Open-source]` for alignment + manual QA | AssemblyAI `[Paid]` |
+| Key moments (jump-to) | 3–6 logical segments with titles, start/end timestamps | **Gemini 2.5 Pro** `[Freemium]` over timestamped transcript (pattern already used in Superr video enrichment) | — |
+| Provenance / watermark | Tamper-evident record of what was AI-generated and how | **C2PA** `[Open-source]` signed manifest; **Google SynthID** `[Paid]` watermarking for images and audio | — |
+
+**Why these work & what could break**
+
+- **One script, many outputs.** A single good script drives the voiceover, the slides, the captions, and the key-moment tags — so quality at the scripting step compounds through the rest of the pipeline. *What could break:* the LLM writes something technically correct but flat. We'll keep a "voice and tone" sample for the scripting prompt so output feels like an Embibe lesson, not generic.
+- **We mix avatar tools with b-roll tools on purpose.** HeyGen and Synthesia are reliable for talking-head explainers, but the visuals feel same-y. Veo, Sora, and Runway give us richer scenes for moments that need them (a historical reenactment, a landscape shot). Using both means we don't get stuck with one look. *What could break:* cost — generating cinematic video is expensive, so we'll cap seconds-of-b-roll per lesson.
+- **Hindi voice cloning is the big unknown.** ElevenLabs is strong in English, weaker in Hindi. Sarvam is purpose-built for Indian languages and is what we'll likely end up using for vernacular. *What could break:* a cloned voice that sounds fine on short phrases but breaks on long sentences or technical words — trial topics in Phase 2 will catch this early.
+- **Programmatic composition > drag-and-drop editors.** Remotion lets us re-render a whole lesson after a single script change, automatically. A manual editor doesn't scale past 10–20 videos. *What could break:* engineering time upfront — the first Remotion template will take real effort. After that, every new lesson is cheap.
+- **Provenance isn't optional.** Parents, boards, and regulators are going to ask "is this AI-generated?" for every piece of content. C2PA and SynthID let us answer that with a signed, verifiable record. *What could break:* not all downstream players read C2PA yet — so for now, we also keep a plain-text "AI-generated" label on the player.
+- **PhET and NCERT simulations are free and already trusted.** For Science topics we can embed them rather than rebuild them, which saves weeks. *What could break:* the embeds aren't brand-consistent. We'll frame them inside an Embibe wrapper so the experience still feels like ours.
+
+### A.3 Shared / orchestration layer
+
+| Stage                     | Purpose / outcome                                                        | Proposed tools & models                                                                                                 | Alternates                                                 |
+| ------------------------- | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| Pipeline orchestration    | Chain stages, retries, branching, human-in-loop gates                    | **LangGraph** `[Open-source]` or **Temporal** `[Open-source]` (durable, observable, production-ready)                   | n8n `[Open-source]`, Prefect `[Freemium]`                  |
+| Prompt / eval tooling     | Track prompt versions, run A/B evals, regression tests                   | **PromptFoo** `[Open-source]` + **Langfuse** `[Open-source]` (tracing)                                                  | Helicone `[Freemium]`, Arize Phoenix `[Open-source]`       |
+| LLM-as-judge (evaluation) | Score every output against the scorecard, flag issues for human reviewer | **Gemini 2.5 Pro** `[Freemium]` (long context, multimodal — watches the video) + **Ragas** `[Open-source]` / **DeepEval** `[Open-source]` as the eval harness | **Claude Sonnet 4.6** `[Paid]` as a secondary judge for cross-check |
+| Embeddings                | Tag outputs for Embibe search / Superr Chat retrieval                    | **gemini-embedding-001** `[Freemium]` (multilingual, strong Indic); **BGE-M3** `[Open-source]` (self-hosted option)     | OpenAI text-embedding-3-large `[Paid]`                     |
+| Vector store              | Fast semantic retrieval for the curated / generated corpus               | **pgvector** `[In-house]` (already in Embibe stack)                                                                     | Qdrant `[Open-source]`, Pinecone `[Paid]`                  |
+| Storage                   | Video, PDF, transcript, GCS artifacts                                    | **GCS / S3** `[In-house]` (existing Embibe infra)                                                                       | —                                                          |
+| Observability             | Cost, latency, error rates, hallucination rate per stage                 | **Langfuse** `[Open-source]` for LLM spans; **Grafana** `[Open-source]` for infra dashboards                            | Helicone `[Freemium]`                                      |
+
+**Why these work & what could break**
+
+- **Orchestration is the backbone, not the feature.** A pipeline with twelve stages needs to handle one stage failing without restarting everything. LangGraph and Temporal do that out of the box. *What could break:* team learning curve — we'll start with LangGraph for its lighter setup.
+- **The judge LLM has to be watched too.** An LLM grading another LLM sounds circular, but it's fine if we check the judge against a human reviewer on a regular sample. Phase 2 of the execution plan is exactly that check. *What could break:* the judge being too lenient on the model that wrote the output (same-family bias). We'll cross-check with a second judge from a different family (Gemini grading, Claude cross-checking).
+- **Embeddings determine how searchable the content is.** Gemini's embeddings are strong on Indic text, which matters for Hindi and regional content retrieval. *What could break:* model deprecation — if Google retires the current embedding model, every vector in the store needs to be regenerated. We'll version our embeddings from day one.
+- **We re-use Embibe infra where we can.** pgvector, GCS, the Superr curriculum graph — all already in production. This keeps the POC's infra footprint small and the path to scale short. *What could break:* the POC stressing shared infra in ways production workloads don't. Worth a capacity check before Phase 3.
+- **Observability isn't a nice-to-have here.** We're making cost and latency claims to leadership, so we need hard numbers per stage — not "feels faster". Langfuse gives us that for LLM calls; Grafana for the rest. *What could break:* nothing yet — but if costs balloon mid-POC, we need the dashboards live enough to catch it in week one.
