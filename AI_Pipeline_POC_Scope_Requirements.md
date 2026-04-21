@@ -11,12 +11,16 @@
 5. [Output](#5-output)
    - 5.1 [Curation approach](#51-curation-approach-experiments-1-2-and-the-curation-pass-of-3--4)
    - 5.2 [Generation approach](#52-generation-approach-experiments-3-and-4)
-6. [How We Evaluate Output](#6-how-we-evaluate-output)
-   - 6.1 [Scoring steps](#61-scoring-steps)
-   - 6.2 [Scorecard](#62-scorecard)
-   - 6.3 [Publish-ready threshold & decision rules](#63-publish-ready-threshold--decision-rules)
-7. [Resources Needed](#7-resources-needed)
-8. [Execution Plan](#8-execution-plan)
+6. [Tools & Models by Pipeline Stage](#6-tools--models-by-pipeline-stage)
+   - 6.1 [Curation pipeline](#61-curation-pipeline)
+   - 6.2 [Generation pipeline](#62-generation-pipeline)
+   - 6.3 [Shared / orchestration layer](#63-shared--orchestration-layer)
+7. [How We Evaluate Output](#7-how-we-evaluate-output)
+   - 7.1 [Scoring steps](#71-scoring-steps)
+   - 7.2 [Scorecard](#72-scorecard)
+   - 7.3 [Publish-ready threshold & decision rules](#73-publish-ready-threshold--decision-rules)
+8. [Resources Needed](#8-resources-needed)
+9. [Execution Plan](#9-execution-plan)
 
 ---
 
@@ -44,7 +48,7 @@ This POC tests two production approaches:
 The three objectives:
 
 1. **Use Curation to cover the gaps we choose not to prioritize now** — primary grades, vernacular, and non-STEM subjects where manual production isn't commercially justified.
-2. **Use Generation to expedite studio-quality production** — turn weeks of scripting, shooting, and post-production into days, so we can publish original Embibe-branded content for core CBSE middle-school subjects at a fraction of current time and cost, with full brand and IP control.
+2. **Use Generation to speed up studio-quality production** — cut weeks of scripting and shooting/editing down to days, for core CBSE middle-school subjects where we want full brand and IP control.
 3. **Validate every output against a single quality scorecard** — every topic, every approach, scored the same way, so we have measurable evidence (not opinion) on where each approach works and where it doesn't.
 
 ---
@@ -114,9 +118,60 @@ Every experiment starts with the same input, regardless of approach.
 
 ---
 
-## 6. How We Evaluate Output
+## 6. Tools & Models by Pipeline Stage
 
-### 6.1 Scoring steps
+This section maps each stage of the pipeline to the purpose it serves and the specific tools and models we propose to use. Choices will be validated in Phase 1 of the execution plan; alternates are listed where a head-to-head bake-off is worthwhile.
+
+### 6.1 Curation pipeline
+
+| Stage | Purpose / outcome | Proposed tools & models | Alternates |
+|---|---|---|---|
+| Source discovery (YouTube) | Find candidate videos on allowlisted channels for a chapter + topic | YouTube Data API v3; `yt-dlp` for download | — |
+| NCERT PDF ingestion | Extract text, tables, figures, page ranges from textbook PDFs | PyMuPDF / `pdfplumber` for base extraction; **Gemini 2.5 Pro** (vision) for layout-aware parsing of diagrams and page spreads | LlamaParse, Unstructured.io, Mistral OCR |
+| Transcript (if no captions) | Timestamped transcript from video audio | **Whisper v3 Turbo** (English); **AI4Bharat IndicConformer** or **Sarvam ASR** (Hindi/Indic) | Gemini 2.5 Flash audio, AssemblyAI |
+| Curriculum alignment | Match source content to the target chapter-topic-LO node in Embibe's curriculum graph | Existing Superr curriculum graph + embedding retrieval | — |
+| Topic summary (~300 words) | Write a short, grade-appropriate explainer in the target language | **Gemini 2.5 Pro** (long context, strong Indic); **Claude Sonnet 4.6** for English | GPT-5 |
+| Key concepts + definitions | Extract 5–7 tagged terms from source material with grade-appropriate definitions | Gemini 2.5 Pro / Claude Sonnet 4.6 with structured output | — |
+| Flowcharts / infographics | Turn explanations into visual aids | **Mermaid** / **Graphviz** (LLM-generated source); **Napkin AI** or **Excalidraw AI** for richer visuals | Whimsical AI |
+| Assessment (10 MCQs + 5 short-answer) | LO-aligned questions with model answers | Gemini 2.5 Pro / Claude Sonnet 4.6 with Bloom's-level prompting | — |
+| Metadata + source record | LO coverage, Bloom's, difficulty, licence, attribution | LLM tagging + deterministic licence lookup (Creative Commons API, YouTube API) | — |
+
+### 6.2 Generation pipeline
+
+| Stage | Purpose / outcome | Proposed tools & models | Alternates |
+|---|---|---|---|
+| Scripting | Write an 8–12 min LO-aligned lesson: explanation, examples, check-for-understanding, recap | **Gemini 2.5 Pro** (long context, Indic-strong); **Claude Opus 4.7** for pedagogical tone; **GPT-5** | — |
+| Slide / deck generation | Lesson slides aligned to the script | **Gamma** (text-to-deck) or LLM → **Marp** / **Reveal.js** (programmatic, versionable) | Beautiful.ai, Tome |
+| Diagrams | Concept diagrams, labelled figures, timelines | **Excalidraw AI**, **Napkin AI**, **Mermaid** | Whimsical AI |
+| Image generation | Illustrations, thumbnails, character art | **Imagen 4** (Google), **Flux 1.1 Pro**, **Midjourney v7** | DALL-E 3, Stable Diffusion XL |
+| 3D / simulation assets | Interactive or 3D visuals (where the topic warrants, e.g. Science) | **Blender** (scriptable), **Spline**, **PhET** simulations (embed), **Three.js** | Unity |
+| Voice cloning — English | Embibe-branded narrator voice | **ElevenLabs v3** | Google Chirp 3 HD, OpenAI TTS |
+| Voice cloning — Hindi / Indic | Natural Hindi / regional narration | **Sarvam AI TTS** (Indic-native), **ElevenLabs v3** | AI4Bharat TTS, Google Chirp 3 HD |
+| Text-to-video / avatar | Assemble narrated video with visuals | **HeyGen** or **Synthesia** (avatar-led, best for explainers); **Google Veo 3** / **Runway Gen-4** / **OpenAI Sora 2** (cinematic b-roll) | Pika, D-ID |
+| Video composition | Stitch slides, voice, diagrams, captions into the final 1080p video | **Remotion** (React-based, programmatic, repeatable) or **FFmpeg** | CapCut API, Descript |
+| Captions | Burned-in or sidecar captions | Whisper v3 Turbo for forced alignment + manual QA | AssemblyAI |
+| Key moments (jump-to) | 3–6 logical segments with titles, start/end timestamps | **Gemini 2.5 Pro** over timestamped transcript (pattern already used in Superr video enrichment) | — |
+| Provenance / watermark | Tamper-evident record of what was AI-generated and how | **C2PA** signed manifest; **Google SynthID** watermarking for images and audio | — |
+
+### 6.3 Shared / orchestration layer
+
+| Stage | Purpose / outcome | Proposed tools & models | Alternates |
+|---|---|---|---|
+| Pipeline orchestration | Chain stages, retries, branching, human-in-loop gates | **LangGraph** or **Temporal** (durable, observable, production-ready) | n8n, Prefect |
+| Prompt / eval tooling | Track prompt versions, run A/B evals, regression tests | **PromptFoo** + **Langfuse** (tracing) | Helicone, Arize Phoenix |
+| LLM-as-judge (evaluation) | Score every output against the scorecard, flag issues for human reviewer | **Gemini 2.5 Pro** (cheap, long context, multimodal — watches the video) + **Ragas** / **DeepEval** as the eval harness | **Claude Sonnet 4.6** as a secondary judge for cross-check |
+| Embeddings | Tag outputs for Embibe search / Superr Chat retrieval | **gemini-embedding-001** (multilingual, strong Indic); **BGE-M3** (self-hosted option) | OpenAI text-embedding-3-large |
+| Vector store | Fast semantic retrieval for the curated / generated corpus | **pgvector** (already in Embibe stack) | Qdrant, Pinecone |
+| Storage | Video, PDF, transcript, GCS artifacts | **GCS / S3** (existing Embibe infra) | — |
+| Observability | Cost, latency, error rates, hallucination rate per stage | **Langfuse** for LLM spans; **Grafana** for infra dashboards | Helicone |
+
+> **Note:** All model choices reflect best-available tooling as of Jan 2026. Phase 1 includes a bake-off step where the team runs trial outputs through two candidate models per stage (where alternates are listed) and the Content Quality reviewer + PM pick the winner before freezing the stack.
+
+---
+
+## 7. How We Evaluate Output
+
+### 7.1 Scoring steps
 
 **Step 1 — Automated scoring (LLM-as-judge)**
 An LLM scores every topic against the scorecard below and flags factual errors, LO drift, and anything scoring low for human review.
@@ -124,24 +179,24 @@ An LLM scores every topic against the scorecard below and flags factual errors, 
 **Step 2 — Human review (Content Quality reviewer)**
 The Content Quality reviewer (human-in-loop) spot-checks every topic, validates the LLM scores, and makes the final pass/fail call.
 
-### 6.2 Scorecard
+### 7.2 Scorecard
 
 Each criterion is scored 0–5 and combined via the weights below.
 
-| Criterion | Wt. | Check |
-|---|---|---|
-| **Factual accuracy** | 25% | Every claim correct. One error = hard stop. |
-| **Curriculum alignment** | 20% | Covers every input LO, stays on-syllabus. |
-| **Pedagogical quality** | 15% | Opening, examples, check-for-understanding, recap. |
-| **Age appropriateness** | 10% | Vocabulary and examples fit the grade. |
-| **Engagement** | 10% | A student in that grade would stay through it. |
-| **Production quality** | 10% | Clean audio, captions, visuals, working links. |
-| **Language fidelity** | 5% | Natural phrasing, correct grammar (Hindi/regional only). |
-| **Safety & bias** | 5% | No religious/political/gender/caste/commercial bias. |
+| Criterion                | Wt. | Check                                                    |
+| ------------------------ | --- | -------------------------------------------------------- |
+| **Factual accuracy**     | 25% | Every claim correct. One error = hard stop.              |
+| **Curriculum alignment** | 20% | Covers every input LO, stays on-syllabus.                |
+| **Pedagogical quality**  | 15% | Opening, examples, check-for-understanding, recap.       |
+| **Age appropriateness**  | 10% | Vocabulary and examples fit the grade.                   |
+| **Engagement**           | 10% | A student in that grade would stay through it.           |
+| **Production quality**   | 10% | Clean audio, captions, visuals, working links.           |
+| **Language fidelity**    | 5%  | Natural phrasing, correct grammar (Hindi/regional only). |
+| **Safety & bias**        | 5%  | No religious/political/gender/caste/commercial bias.     |
 
 *How each is checked:* LLM-as-judge scores every criterion against the NCERT reference (claims, LO coverage, structure, readability, pacing, audio/caption/link checks, bias classifier). The Content Quality reviewer validates LLM scores, spot-checks facts and clips, and makes the final call. Language fidelity uses a native-speaker reviewer; skipped for English-only (weight redistributed).
 
-### 6.3 Publish-ready threshold & decision rules
+### 7.3 Publish-ready threshold & decision rules
 
 **Publish-ready threshold:** weighted score ≥ **3.8 / 5.0 (76%)**, no single criterion below **3.0 / 5.0 (60%)**, zero factual errors.
 
@@ -159,7 +214,7 @@ Each criterion is scored 0–5 and combined via the weights below.
 
 ---
 
-## 7. Resources Needed
+## 8. Resources Needed
 
 Lean POC team. 4–5 people total.
 
@@ -178,7 +233,7 @@ Lean POC team. 4–5 people total.
 
 ---
 
-## 8. Execution Plan
+## 9. Execution Plan
 
 ### Phase 1 — Setup
 *Get the inputs, tools, and scoring prompt ready so the team can actually start running experiments.*
