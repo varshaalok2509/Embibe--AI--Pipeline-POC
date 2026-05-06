@@ -58,16 +58,25 @@ The three objectives:
 
 ## 3. Experiments at a Glance
 
-All experiments: CBSE board, 1 chapter × 3 topics each.
+Three CBSE + one state board, 1 chapter × 3 topics each.
 
-| #     | Approach       | Gr  | Subject         | Chapter — *Topics*                                                                                                                                                     | Lang |
-| ----- | -------------- | --- | --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
-| **1** | Curation       | 5   | English         | **The Rainbow** (Santoor) — *Theme & meaning; New vocabulary; Poetic devices (rhyme, imagery)*                                                                         | En   |
-| **2** | Curation       | 6   | Hindi           | **Malahar** — *Theme & imagery; Vocabulary & phrases; Poetic devices*                                                                                                  | Hi   |
-| **3** | Gen + Curation | 6   | SST (History)   | **Timeline and Sources of History** — *Dating conventions (BCE/CE, timelines); Sources of history (literary, archaeological, oral); How historians construct the past* | En   |
-| **4** | Gen + Curation | 8   | SST (Geography) | **Natural Resources and Their Use** — *Types of resources (renewable vs non-renewable, biotic vs abiotic); Distribution and human use; Conservation and sustainable use* | En |
+| #     | Board                          | Approach       | Gr  | Subject         | Chapter — *Topics*                                                                                                                                                       | Lang |
+| ----- | ------------------------------ | -------------- | --- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---- |
+| **1** | CBSE                           | Curation       | 5   | English         | **The Rainbow** (Santoor) — *Theme & meaning; New vocabulary; Poetic devices (rhyme, imagery)*                                                                           | En   |
+| **2** | Maharashtra State (Balbharati) | Curation       | 6   | Hindi           | **Sulabhbharati — sample chapter** — *Theme & imagery; Vocabulary & phrases; Poetic devices*                                                                             | Hi   |
+| **3** | CBSE                           | Gen + Curation | 6   | SST (History)   | **Timeline and Sources of History** — *Dating conventions (BCE/CE, timelines); Sources of history (literary, archaeological, oral); How historians construct the past*   | En   |
+| **4** | CBSE                           | Gen + Curation | 8   | SST (Geography) | **Natural Resources and Their Use** — *Types of resources (renewable vs non-renewable, biotic vs abiotic); Distribution and human use; Conservation and sustainable use* | En   |
 
 For Experiments 3 and 4, we run the **same topics through both Curation and Generation** — so we can compare the two approaches side-by-side on identical input and see which one produces better output for the same chapter.
+
+**Additional combinations under consideration** — broader board / language coverage to evaluate after the first four experiments:
+
+| # | Board             | Grade | Subject        | Language          |
+| - | ----------------- | ----- | -------------- | ----------------- |
+| 5 | Maharashtra Board | 6     | Social Science | English + Marathi |
+| 6 | CBSE              | 6     | Hindi          | Hindi             |
+| 7 | Karnataka Board   | 9     | Social Science | English + Kannada |
+| 8 | Karnataka Board   | 9     | Kannada        | Kannada           |
 
 ---
 
@@ -77,7 +86,7 @@ Every experiment starts with the same input, regardless of approach.
 
 | Field               | Description                                                          |
 | ------------------- | -------------------------------------------------------------------- |
-| Board               | CBSE                                                                 |
+| Board               | CBSE (Exp 1, 3, 4) · Maharashtra State Board (Exp 2)                 |
 | Grade               | 5 / 6 / 8                                                            |
 | Subject             | As per experiment                                                    |
 | Chapter + Topics    | 1 chapter, 3 topics scoped per experiment                            |
@@ -91,14 +100,14 @@ Every experiment starts with the same input, regardless of approach.
 
 ### 5.1 Curation approach (Experiments 1, 2, and the curation pass of 3 & 4)
 
-| Artifact         | Detail                                                                                      |
-| ---------------- | ------------------------------------------------------------------------------------------- |
-| Curated resource | 1 YouTube video segment (with start/end timestamps) **or** 1 NCERT PDF excerpt (page range) |
-| Topic summary    | ~300-word explainer in target language                                                      |
-| Key concepts     | 5–7 tagged terms with definitions, flowcharts and infographics (as relevant)                |
-| Assessment       | 10 MCQs + 5 short-answer questions with model answers                                       |
-| Metadata         | Learning objectives covered, prerequisites, difficulty, Bloom's level                       |
-| Source record    | Original URL, creator, license type, attribution text                                       |
+| Artifact         | Detail                                                                                         |
+| ---------------- | ---------------------------------------------------------------------------------------------- |
+| Curated resource | 1 YouTube video segment (with start/end timestamps) **or** 1 textbook PDF excerpt (page range) |
+| Topic summary    | ~300-word explainer in target language                                                         |
+| Key concepts     | 5–7 tagged terms with definitions, flowcharts and infographics (as relevant)                   |
+| Assessment       | 10 MCQs + 5 short-answer questions with model answers                                          |
+| Metadata         | Learning objectives covered, prerequisites, difficulty, Bloom's level                          |
+| Source record    | Original URL, creator, license type, attribution text                                          |
 
 **YouTube source channels (starting allowlist — curation is restricted to vetted educational channels):**
 - Magnet Brains
@@ -236,46 +245,46 @@ This appendix maps each stage of the pipeline to the tools and models we propose
 
 ### A.1 Curation pipeline
 
-| Stage | Purpose / outcome | Proposed tools & models | Alternates |
-|---|---|---|---|
-| Source discovery (YouTube) | Find candidate videos on allowlisted channels for a chapter + topic | YouTube Data API v3 `[Freemium]`; `yt-dlp` `[Open-source]` for download | — |
-| NCERT PDF ingestion | Extract text, tables, figures, page ranges from textbook PDFs | PyMuPDF `[Open-source]` / `pdfplumber` `[Open-source]` for base extraction; **Gemini 2.5 Pro** `[Freemium]` (vision) for layout-aware parsing of diagrams and page spreads | LlamaParse `[Freemium]`, Unstructured.io `[Freemium]`, Mistral OCR `[Paid]` |
-| Transcript (if no captions) | Timestamped transcript from video audio | **Whisper v3 Turbo** `[Open-source]` (English); **AI4Bharat IndicConformer** `[Open-source]` or **Sarvam ASR** `[Paid]` (Hindi/Indic) | Gemini 2.5 Flash audio `[Freemium]`, AssemblyAI `[Paid]` |
-| Curriculum alignment | Match source content to the target chapter-topic-LO node in Embibe's curriculum graph | Superr curriculum graph `[In-house]` + embedding retrieval `[In-house]` | — |
-| Topic summary (~300 words) | Write a short, grade-appropriate explainer in the target language | **Gemini 2.5 Pro** `[Freemium]` (long context, strong Indic); **Claude Sonnet 4.6** `[Paid]` for English | GPT-5 `[Paid]` |
-| Key concepts + definitions | Extract 5–7 tagged terms with grade-appropriate definitions | Gemini 2.5 Pro `[Freemium]` / Claude Sonnet 4.6 `[Paid]` with structured output | — |
-| Flowcharts / infographics | Turn explanations into visual aids | **Mermaid** `[Open-source]` / **Graphviz** `[Open-source]` (LLM-generated source); **Napkin AI** `[Freemium]` or **Excalidraw AI** `[Freemium]` for richer visuals | Whimsical AI `[Freemium]` |
-| Assessment (10 MCQs + 5 short-answer) | LO-aligned questions with model answers | Gemini 2.5 Pro `[Freemium]` / Claude Sonnet 4.6 `[Paid]` with Bloom's-level prompting | — |
-| Metadata + source record | LO coverage, Bloom's, difficulty, licence, attribution | LLM tagging `[Freemium/Paid]` + deterministic licence lookup (Creative Commons API `[Open-source]`, YouTube API `[Freemium]`) | — |
+| Stage | Proposed tools & models | Alternates |
+|---|---|---|
+| Source discovery (YouTube) | YouTube Data API v3 `[Freemium]`; yt-dlp `[Open-source]` | — |
+| Textbook PDF ingestion | PyMuPDF `[Open-source]`; pdfplumber `[Open-source]`; Gemini 2.5 Pro `[Freemium]` | LlamaParse `[Freemium]`; Unstructured.io `[Freemium]`; Mistral OCR `[Paid]`; Google ML Kit `[Freemium]` |
+| Transcript (if no captions) | Whisper v3 Turbo `[Open-source]`; AI4Bharat IndicConformer `[Open-source]`; Sarvam ASR `[Paid]` | Gemini 2.5 Flash audio `[Freemium]`; AssemblyAI `[Paid]` |
+| Curriculum alignment | Superr curriculum graph `[In-house]` | — |
+| Topic summary | Gemini 2.5 Pro `[Freemium]`; Claude Sonnet 4.6 `[Paid]` | GPT-5 `[Paid]` |
+| Key concepts + definitions | Gemini 2.5 Pro `[Freemium]`; Claude Sonnet 4.6 `[Paid]` | — |
+| Flowcharts / infographics | Mermaid `[Open-source]`; Graphviz `[Open-source]`; Napkin AI `[Freemium]`; Excalidraw AI `[Freemium]` | Whimsical AI `[Freemium]` |
+| Assessment (MCQs + short-answer) | Gemini 2.5 Pro `[Freemium]`; Claude Sonnet 4.6 `[Paid]` | — |
+| Metadata + source record | Gemini 2.5 Pro `[Freemium]`; Claude Sonnet 4.6 `[Paid]`; Creative Commons API `[Open-source]`; YouTube API `[Freemium]` | — |
 
 ### A.2 Generation pipeline
 
-| Stage | Purpose / outcome | Proposed tools & models | Alternates |
-|---|---|---|---|
-| Scripting | Write an 8–12 min LO-aligned lesson: explanation, examples, check-for-understanding, recap | **Gemini 2.5 Pro** `[Freemium]` (long context, Indic-strong); **Claude Opus 4.7** `[Paid]` for pedagogical tone; **GPT-5** `[Paid]` | — |
-| Slide / deck generation | Lesson slides aligned to the script | **Gamma** `[Freemium]` (text-to-deck) or LLM → **Marp** `[Open-source]` / **Reveal.js** `[Open-source]` (programmatic, versionable) | Beautiful.ai `[Paid]`, Tome `[Freemium]` |
-| Diagrams | Concept diagrams, labelled figures, timelines | **Excalidraw AI** `[Freemium]`, **Napkin AI** `[Freemium]`, **Mermaid** `[Open-source]` | Whimsical AI `[Freemium]` |
-| Image generation | Illustrations, thumbnails, character art | **Imagen 4** `[Paid]`, **Flux 1.1 Pro** `[Paid]`, **Midjourney v7** `[Paid]` | DALL-E 3 `[Paid]`, Stable Diffusion XL `[Open-source]` |
-| 3D / simulation assets | Interactive or 3D visuals (where the topic warrants, e.g. Science) | **Blender** `[Open-source]` (scriptable), **Spline** `[Freemium]`, **PhET** `[Open-source]` simulations (embed), **Three.js** `[Open-source]` | Unity `[Freemium]` |
-| Voice cloning — English | Embibe-branded narrator voice | **ElevenLabs v3** `[Paid]` | Google Chirp 3 HD `[Paid]`, OpenAI TTS `[Paid]` |
-| Voice cloning — Hindi / Indic | Natural Hindi / regional narration | **Sarvam AI TTS** `[Paid]` (Indic-native), **ElevenLabs v3** `[Paid]` | AI4Bharat TTS `[Open-source]`, Google Chirp 3 HD `[Paid]` |
-| Text-to-video / avatar | Assemble narrated video with visuals | **HeyGen** `[Paid]` or **Synthesia** `[Paid]` (avatar-led, best for explainers); **Google Veo 3** `[Paid]` / **Runway Gen-4** `[Paid]` / **OpenAI Sora 2** `[Paid]` (cinematic b-roll) | Pika `[Freemium]`, D-ID `[Paid]` |
-| Video composition | Stitch slides, voice, diagrams, captions into the final 1080p video | **Remotion** `[Open-source]` (React-based, programmatic, repeatable) or **FFmpeg** `[Open-source]` | CapCut API `[Freemium]`, Descript `[Paid]` |
-| Captions | Burned-in or sidecar captions | Whisper v3 Turbo `[Open-source]` for alignment + manual QA | AssemblyAI `[Paid]` |
-| Key moments (jump-to) | 3–6 logical segments with titles, start/end timestamps | **Gemini 2.5 Pro** `[Freemium]` over timestamped transcript (pattern already used in Superr video enrichment) | — |
-| Provenance / watermark | Tamper-evident record of what was AI-generated and how | **C2PA** `[Open-source]` signed manifest; **Google SynthID** `[Paid]` watermarking for images and audio | — |
+| Stage | Proposed tools & models | Alternates |
+|---|---|---|
+| Scripting | Gemini 2.5 Pro `[Freemium]`; Claude Opus 4.7 `[Paid]`; GPT-5 `[Paid]` | — |
+| Slide / deck generation | Gamma `[Freemium]`; Marp `[Open-source]`; Reveal.js `[Open-source]` | Beautiful.ai `[Paid]`; Tome `[Freemium]` |
+| Diagrams | Excalidraw AI `[Freemium]`; Napkin AI `[Freemium]`; Mermaid `[Open-source]` | Whimsical AI `[Freemium]` |
+| Image generation | Imagen 4 `[Paid]`; Flux 1.1 Pro `[Paid]`; Midjourney v7 `[Paid]` | DALL-E 3 `[Paid]`; Stable Diffusion XL `[Open-source]` |
+| 3D / simulation assets | Blender `[Open-source]`; Spline `[Freemium]`; PhET `[Open-source]`; Three.js `[Open-source]` | Unity `[Freemium]`; Luma AI Genie `[Freemium]`; Meshy `[Freemium]`; Rodin `[Freemium]` |
+| Voice cloning — English | ElevenLabs v3 `[Paid]` | Google Chirp 3 HD `[Paid]`; OpenAI TTS `[Paid]` |
+| Voice cloning — Hindi / Indic | Sarvam AI TTS `[Paid]`; ElevenLabs v3 `[Paid]` | AI4Bharat TTS `[Open-source]`; Google Chirp 3 HD `[Paid]` |
+| Text-to-video / avatar | HeyGen `[Paid]`; Synthesia `[Paid]`; Google Veo 3 `[Paid]`; Runway Gen-4 `[Paid]` | Pika `[Freemium]`; D-ID `[Paid]` |
+| Video composition | Remotion `[Open-source]`; FFmpeg `[Open-source]` | CapCut API `[Freemium]`; Descript `[Paid]`; Invideo `[Paid]` |
+| Captions | Whisper v3 Turbo `[Open-source]` | AssemblyAI `[Paid]` |
+| Key moments (jump-to) | Gemini 2.5 Pro `[Freemium]` | — |
+| Provenance / watermark | C2PA `[Open-source]`; Google SynthID `[Paid]` | — |
 
 ### A.3 Shared / orchestration layer
 
-| Stage                     | Purpose / outcome                                                        | Proposed tools & models                                                                                                 | Alternates                                                 |
-| ------------------------- | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
-| Pipeline orchestration    | Chain stages, retries, branching, human-in-loop gates                    | **LangGraph** `[Open-source]` or **Temporal** `[Open-source]` (durable, observable, production-ready)                   | n8n `[Open-source]`, Prefect `[Freemium]`                  |
-| Prompt / eval tooling     | Track prompt versions, run A/B evals, regression tests                   | **PromptFoo** `[Open-source]` + **Langfuse** `[Open-source]` (tracing)                                                  | Helicone `[Freemium]`, Arize Phoenix `[Open-source]`       |
-| LLM-as-judge (evaluation) | Score every output against the scorecard, flag issues for human reviewer | **Gemini 2.5 Pro** `[Freemium]` (long context, multimodal — watches the video) + **Ragas** `[Open-source]` / **DeepEval** `[Open-source]` as the eval harness | **Claude Sonnet 4.6** `[Paid]` as a secondary judge for cross-check |
-| Embeddings                | Tag outputs for Embibe search / Superr Chat retrieval                    | **gemini-embedding-001** `[Freemium]` (multilingual, strong Indic); **BGE-M3** `[Open-source]` (self-hosted option)     | OpenAI text-embedding-3-large `[Paid]`                     |
-| Vector store              | Fast semantic retrieval for the curated / generated corpus               | **pgvector** `[In-house]` (already in Embibe stack)                                                                     | Qdrant `[Open-source]`, Pinecone `[Paid]`                  |
-| Storage                   | Video, PDF, transcript, GCS artifacts                                    | **GCS / S3** `[In-house]` (existing Embibe infra)                                                                       | —                                                          |
-| Observability             | Cost, latency, error rates, hallucination rate per stage                 | **Langfuse** `[Open-source]` for LLM spans; **Grafana** `[Open-source]` for infra dashboards                            | Helicone `[Freemium]`                                      |
+| Stage | Proposed tools & models | Alternates |
+|---|---|---|
+| Pipeline orchestration | LangGraph `[Open-source]`; Temporal `[Open-source]` | n8n `[Open-source]`; Prefect `[Freemium]` |
+| Prompt / eval tooling | PromptFoo `[Open-source]`; Langfuse `[Open-source]` | Helicone `[Freemium]`; Arize Phoenix `[Open-source]` |
+| LLM-as-judge (evaluation) | Gemini 2.5 Pro `[Freemium]`; Ragas `[Open-source]`; DeepEval `[Open-source]` | Claude Sonnet 4.6 `[Paid]` |
+| Embeddings | gemini-embedding-001 `[Freemium]`; BGE-M3 `[Open-source]` | OpenAI text-embedding-3-large `[Paid]` |
+| Vector store | pgvector `[In-house]` | Qdrant `[Open-source]`; Pinecone `[Paid]` |
+| Storage | GCS / S3 `[In-house]` | — |
+| Observability | Langfuse `[Open-source]`; Grafana `[Open-source]` | Helicone `[Freemium]` |
 
 ### A.4 Known risks to watch
 
