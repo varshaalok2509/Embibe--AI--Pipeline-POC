@@ -1,6 +1,5 @@
 # Jio Education — Product Vision Cadence Tracker
 
-**Owner:** Varsha Alok
 **Cadence:** Weekly · starts week of 2026-05-25 · 45 min suggested
 **Horizon:** 5–6 months, parallel tracks with staggered completion
 **Purpose:** Bring visibility and structure to a currently reactive environment. Track five parallel threads shaping Jio Education's product vision, and act as the bridge between strategy and engineering through structured program management.
@@ -19,13 +18,13 @@
 
 ## Snapshot — Week of 2026-05-18 (kickoff)
 
-| # | Track | Owner / DRI | Status | Headline |
-|---|-------|-------------|--------|----------|
-| 1 | Superr+ ↔ Embibe Integration | TBD | ⚪ | Scope to be defined |
-| 2 | Embibe Hardware Decoupling (IFPD, Smart TV, tablet, projector) | TBD | ⚪ | Form-factor list locked; arch work pending |
-| 3 | Data Pipeline for Non-Video Content Curation | TBD | ⚪ | CBSE 6 (NCERT) is flagship; ICSE deferred |
-| 4 | Productivity Tools for Content Creation Teams | Varsha Gajjar | ⚪ | Full AI video creation **ruled out** — pivot to workflow accelerators |
-| 5 | Full Integration into Educational Ecosystem (LMS / ERP / Attendance) | TBD | ⚪ | LMS coupling essential; ERP + attendance to scope |
+| # | Track | Owner / DRI | Status | Target outcome (5–6 mo) |
+|---|-------|-------------|--------|--------------------------|
+| 1 | Superr+ ↔ Embibe Integration | TBD | ⚪ | Superr+ user accesses Embibe via unified SSO/entitlement — live for ≥ 1 segment |
+| 2 | Embibe Hardware Decoupling (IFPD, Smart TV, tablet, projector) | TBD | ⚪ | Single codebase running on ≥ 2 non-tablet form factors in a real classroom pilot |
+| 3 | Data Pipeline for Non-Video Content Curation | TBD | ⚪ | Full CBSE 6 plug-and-play live (board + book + quiz); pattern proven for CBSE 7 |
+| 4 | Productivity Tools for Content Creation Teams | Varsha Gajjar | ⚪ | ≥ 2 tools shipped; measurable throughput uplift vs baseline |
+| 5 | Full Integration into Educational Ecosystem (LMS / ERP / Attendance) | TBD | ⚪ | Live LMS + TeachLite demo in a real school — "slots into what you have" |
 
 **Top 3 things needed from kickoff meeting:**
 1. Confirm DRI for each of the 5 tracks.
@@ -47,6 +46,8 @@
 ## 1. Superr+ ↔ Embibe Integration
 
 - **Objective:** Define and deliver the integration surface between Superr+ and Embibe.
+- **🎯 Target outcome (5–6 mo):** A Superr+ user accesses Embibe content and learning flows from inside Superr+ through unified sign-on, entitlement, and UX — live in production for at least one user segment.
+- **Success measures:** SSO success ≥ 95% · ≥ 1 segment live in prod · weekly Embibe sessions originating from Superr+ trending up
 - **Owner / DRI:** TBD
 - **Status:** ⚪
 - **Why this matters:** Foundational coupling — many downstream tracks (ecosystem, hardware) assume this exists.
@@ -73,6 +74,8 @@
 ## 2. Embibe Hardware Decoupling — IFPD, Smart TV, Tablet, Projector
 
 - **Objective:** Make Embibe deployable across classroom hardware (IFPDs, smart TVs, tablets, projectors) without forking the product, with multi-language support expansion.
+- **🎯 Target outcome (5–6 mo):** Embibe runs from a single codebase on **at least two non-tablet form factors** (IFPD + Smart TV minimum) in a real classroom pilot, with multi-language support enabled.
+- **Success measures:** ≥ 2 non-tablet form factors live · ≥ 1 school pilot completed · zero hardware-specific forks in codebase · ≥ N languages supported
 - **Owner / DRI:** TBD
 - **Status:** ⚪
 - **Why this matters:** Schools have heterogeneous hardware. A single decoupled core unblocks classroom rollout.
@@ -102,6 +105,8 @@
 ## 3. Data Pipeline for Non-Video Content Curation
 
 - **Objective:** Build a pipeline that ingests, tags, and curates non-video learning content at scale — flagship use case being **full CBSE Grade 6 integration on NCERT**.
+- **🎯 Target outcome (5–6 mo):** A fully curated **CBSE Grade 6 plug-and-play experience** live in product — board + book + quiz seamlessly stitched — with the pattern proven repeatable for CBSE Grade 7.
+- **Success measures:** 100% of CBSE 6 NCERT chapters curated · quizzes auto-generated from curated content · CBSE 7 ingestion started · pipeline cycle time per chapter documented
 - **Owner / DRI:** TBD
 - **Status:** ⚪
 - **Why this matters:** Unlocks seamless quiz/book/board interactions; the curation backbone for every classroom surface.
@@ -137,6 +142,8 @@
 ## 4. Productivity Tools for Content Creation Teams (Varsha Gajjar & team)
 
 - **Objective:** Accelerate the content creation team's existing workflows with targeted tools. **Not building full AI video generation** — that path was ruled out as unfeasible.
+- **🎯 Target outcome (5–6 mo):** Varsha Gajjar's team produces measurably more content per unit time, using ≥ 2 in-house productivity tools, with a documented baseline-vs-uplift comparison.
+- **Success measures:** ≥ 2 tools shipped and adopted · target ≥ 30% reduction in time-per-asset (set with team) · weekly throughput trending up vs baseline
 - **Owner / DRI:** Varsha Gajjar
 - **Status:** ⚪
 - **Why this matters:** Creator throughput is the rate-limiter on every content-dependent track. Tools must speed humans, not replace them.
@@ -168,6 +175,8 @@
 ## 5. Full Integration into Educational Ecosystem
 
 - **Objective:** Position Embibe as a connected layer in the school ecosystem — LMS, ERP, attendance — with a credible demo for schools that already run an LMS + TeachLite boards.
+- **🎯 Target outcome (5–6 mo):** A live, demo-able school deployment where Embibe is integrated with the school's existing LMS and running on TeachLite boards — proving the "slot into what you already have" story for sales conversations.
+- **Success measures:** ≥ 1 LMS integration live in a real school · TeachLite board demo working end-to-end · ERP and attendance integration scoping signed off · LMS shortlist documented
 - **Owner / DRI:** TBD
 - **Status:** ⚪
 - **Why this matters:** Schools won't adopt point products. The win is "Embibe slots into what you already have."
